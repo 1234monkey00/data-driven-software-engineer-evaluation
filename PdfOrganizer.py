@@ -20,39 +20,41 @@ def ReadDB(DBconnection):
 #funzione per inserire pdf nel database, ha come parametri la connessione al DB ed il nome del file pdf
 def InsertPDFinDB(DBconnection, PDFname):
 
-    path = os.path.abspath(os.getcwd() + os.sep + "data-processing" + os.sep + "pdfs" + os.sep + PDFname)
+    try:
+        path = os.path.abspath(os.getcwd() + os.sep + "data-processing" + os.sep + "pdfs" + os.sep + PDFname)
 
-    readPDF = PdfReader(path)
+        readPDF = PdfReader(path)
 
-    pagenumber = len(readPDF.pages)
+        pagenumber = len(readPDF.pages)
 
-    meta = readPDF.metadata
+        meta = readPDF.metadata
 
-    author = meta.author
-    date = meta.creation_date
+        author = meta.author
+        date = meta.creation_date
 
-    producer = meta.producer
-
-
-
-
-
-    pages = readPDF.pages
-    pagetxt = ""
-
-    for page in pages:
-        pagetxt += page.extract_text()
+        producer = meta.producer
 
 
 
 
 
-    command = DBconnection.cursor()
+        pages = readPDF.pages
+        pagetxt = ""
 
-    command.execute("INSERT INTO pdfsTable (PDFname,PDFtext,PDFauthor,PDFcreationDate,PDFpagesNumber,PDFeditorUsed) VALUES ('" + str(PDFname) + "','" + str(pagetxt) + "','" + str(author) + "','" + str(date) + "','" + str(pagenumber) + "','" + str(producer) + "');")
-    command.fetchall()
+        for page in pages:
+            pagetxt += page.extract_text()
 
 
+
+
+
+        command = DBconnection.cursor()
+
+        command.execute("INSERT INTO pdfsTable (PDFname,PDFtext,PDFauthor,PDFcreationDate,PDFpagesNumber,PDFeditorUsed) VALUES ('" + str(PDFname) + "','" + str(pagetxt) + "','" + str(author) + "','" + str(date) + "','" + str(pagenumber) + "','" + str(producer) + "');")
+        command.fetchall()
+
+    except : #try catch per la gestione di file corrotti o errati
+        print("can't put the pdf "+ str(PDFname) + " in the DB, it could be that the pdf is corrupted check it out and try again...")
 
 
 
